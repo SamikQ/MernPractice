@@ -11,14 +11,14 @@ import {
   VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
 import { useForm } from "../../shared/hooks/form-hook";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import { AuthContext } from "../../shared/context/auth-context";
 import "./Auth.css";
 
 const Auth = () => {
   const auth = useContext(AuthContext);
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient(); // впроваджуємо кастомний хук
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -60,67 +60,48 @@ const Auth = () => {
 
   const authSubmitHandler = async (event) => {
     event.preventDefault();
-
-    setIsLoading(true); // негайно оновляємо стейт в лоадінг - тру
+    console.log("click");
 
     if (isLoginMode) {
       try {
-        const response = await fetch("http://localhost:5000/api/users/login", {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json", // пояснюємо бек-енду, який тип даних до нього приходить
-          },
-          // конвертуємо тіло запиту в JSON
-          body: JSON.stringify({
+        // використовуємо customHook
+        await sendRequest(
+          "http://localhost:5000/api/users/login", // передаємо url
+          "POST", // передаємо метод
+          JSON.stringify({
+            // передаємо тіло запиту
             email: formState.inputs.email.value,
             password: formState.inputs.password.value,
           }),
-        });
-
-        const responseData = await response.json(); //очкуємо на відповідь у форматі json
-        // якщо ми отримуемо статус код 200 (400 і 500 коди не проходять цю перевірку) тому робимо !ok
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        setIsLoading(false);
+          {
+            "Content-type": "application/json", // пояснюємо бек-енду, який тип даних до нього приходить
+          }
+        );
         auth.login();
-      } catch (err) {
-        console.log(err);
-        setIsLoading(false);
-        setError(err.message || "Something went wrong, please repeate."); // якщо помилка - викидаємо її в стейт
-      }
+      } catch (err) {}
     } else {
       try {
-        const response = await fetch("http://localhost:5000/api/users/signup", {
-          method: "POST",
-          headers: {
-            "Content-type": "application/json", // пояснюємо бек-енду, який тип даних до нього приходить
-          },
-          // конвертуємо тіло запиту в JSON
-          body: JSON.stringify({
+        await sendRequest(
+          "http://localhost:5000/api/users/signup",
+          "POST",
+          JSON.stringify({
+            // конвертуємо тіло запиту в JSON
             name: formState.inputs.name.value,
             email: formState.inputs.email.value,
             password: formState.inputs.password.value,
           }),
-        });
+          {
+            "Content-type": "application/json", // пояснюємо бек-енду, який тип даних до нього приходить
+          }
+        );
 
-        const responseData = await response.json(); //очкуємо на відповідь у форматі json
-        // якщо ми отримуемо статус код 200 (400 і 500 коди не проходять цю перевірку) тому робимо !ok
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        setIsLoading(false);
         auth.login();
-      } catch (err) {
-        console.log(err);
-        setIsLoading(false);
-        setError(err.message || "Something went wrong, please repeate."); // якщо помилка - викидаємо її в стейт
-      }
+      } catch (err) {}
     }
   };
 
   const errorHandler = () => {
-    setError(null);
+    clearError(); // використовуємо функцію з кастомХука
   };
 
   return (
@@ -156,8 +137,8 @@ const Auth = () => {
             id="password"
             type="password"
             label="Password"
-            validators={[VALIDATOR_MINLENGTH(5)]}
-            errorText="Please enter a valid password, at least 5 characters."
+            validators={[VALIDATOR_MINLENGTH(6)]}
+            errorText="Please enter a valid password, at least 6 characters."
             onInput={inputHandler}
           />
           <Button type="submit" disabled={!formState.isValid}>

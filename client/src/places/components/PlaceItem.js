@@ -1,13 +1,13 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from "react";
 
-import Card from '../../shared/components/UIElements/Card';
-import Button from '../../shared/components/FormElements/Button';
-import Modal from '../../shared/components/UIElements/Modal';
-import Map from '../../shared/components/UIElements/Map';
-import { AuthContext } from '../../shared/context/auth-context';
-import './PlaceItem.css';
+import Card from "../../shared/components/UIElements/Card";
+import Button from "../../shared/components/FormElements/Button";
+import Modal from "../../shared/components/UIElements/Modal";
+import Map from "../../shared/components/UIElements/Map";
+import { AuthContext } from "../../shared/context/auth-context";
+import "./PlaceItem.css";
 
-const PlaceItem = props => {
+const PlaceItem = (props) => {
   const auth = useContext(AuthContext);
   const [showMap, setShowMap] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -26,7 +26,7 @@ const PlaceItem = props => {
 
   const confirmDeleteHandler = () => {
     setShowConfirmModal(false);
-    console.log('DELETING...');
+    console.log("DELETING...");
   };
 
   return (
@@ -37,8 +37,7 @@ const PlaceItem = props => {
         header={props.address}
         contentClass="place-item__modal-content"
         footerClass="place-item__modal-actions"
-        footer={<Button onClick={closeMapHandler}>CLOSE</Button>}
-      >
+        footer={<Button onClick={closeMapHandler}>CLOSE</Button>}>
         <div className="map-container">
           <Map center={props.coordinates} zoom={16} />
         </div>
@@ -57,8 +56,7 @@ const PlaceItem = props => {
               DELETE
             </Button>
           </React.Fragment>
-        }
-      >
+        }>
         <p>
           Do you want to proceed and delete this place? Please note that it
           can't be undone thereafter.
@@ -78,11 +76,11 @@ const PlaceItem = props => {
             <Button inverse onClick={openMapHandler}>
               VIEW ON MAP
             </Button>
-            {auth.isLoggedIn && (
+            {auth.userId === props.creator.id && (
               <Button to={`/places/${props.id}`}>EDIT</Button>
             )}
 
-            {auth.isLoggedIn && (
+            {auth.userId === props.creator.id && (
               <Button danger onClick={showDeleteWarningHandler}>
                 DELETE
               </Button>
