@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 const HttpError = require("../models/http-error");
 
 module.exports = (req, res, next) => {
+  if (req.method === "OPTIONS") { // перевіряємо реквест, щоб в нього був метод
+    return next();
+  }
   try {
     // за допомогою split("") розбиваємо ключ і значення: Authorization: 'Bearer TOKEN'([1])
     const token = req.headers.authorization.split("")[1]; // використовуємо хедер, щоб отримати дані

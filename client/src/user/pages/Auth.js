@@ -65,7 +65,7 @@ const Auth = () => {
     if (isLoginMode) {
       try {
         // використовуємо customHook
-        await sendRequest(
+        const responseData = await sendRequest(
           "http://localhost:5000/api/users/login", // передаємо url
           "POST", // передаємо метод
           JSON.stringify({
@@ -77,11 +77,11 @@ const Auth = () => {
             "Content-type": "application/json", // пояснюємо бек-енду, який тип даних до нього приходить
           }
         );
-        auth.login();
+        auth.login(responseData.userId, responseData.token);
       } catch (err) {}
     } else {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
           "http://localhost:5000/api/users/signup",
           "POST",
           JSON.stringify({
@@ -95,7 +95,7 @@ const Auth = () => {
           }
         );
 
-        auth.login();
+        auth.login(responseData.userId, responseData.token);
       } catch (err) {}
     }
   };
