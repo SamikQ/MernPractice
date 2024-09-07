@@ -2,12 +2,16 @@ const express = require("express");
 const { check } = require("express-validator");
 
 const placesControllers = require("../controllers/places-controller");
+const checkAuth = require("../middleware/check-auth");
 
 const router = express.Router(); // створємо роут за допомогою методу Router()
 
 router.get("/:pid", placesControllers.getPlaceById);
 
 router.get("/user/:uid", placesControllers.getPlacesByUserId);
+
+//створюємо захист аутентифікації для всіх наступних шляхів. Верхні не захищені
+router.use(checkAuth);
 
 router.post(
   "/",
