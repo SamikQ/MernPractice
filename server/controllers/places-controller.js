@@ -68,7 +68,7 @@ const createPlace = async (req, res, next) => {
     next(new HttpError("Invalid inputs passed, please check your data.", 422));
   }
 
-  const { title, description, address, creator } = req.body; //визначаємо необхідні елементи з тіла запиту
+  const { title, description, address } = req.body; //визначаємо необхідні елементи з тіла запиту
 
   let coordinates;
   // getCoordsForAddress може видати помилку, тому нам треба робити це через try catch
@@ -84,13 +84,13 @@ const createPlace = async (req, res, next) => {
     address,
     location: coordinates,
     image: "https://treeplantation.com/images/articles/banana-tree.png",
-    creator,
+    creator: req.userData.userId,
   });
 
   let user;
 
   try {
-    user = await User.findById(creator); // перевірка, чи існує користувач щоб додати плейс
+    user = await User.findById(req.userData.userId); // перевірка, чи існує користувач щоб додати плейс
   } catch (err) {
     const error = new HttpError("User wasn't found, try again", 500);
     return next(error);
